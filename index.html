@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine 💖</title>
+<style>
+body {
+    margin: 0;
+    background: linear-gradient(to right, #ffdde1, #ee9ca7);
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+h1 {
+    font-size: 50px;
+    color: white;
+    position: fixed;
+    top: 25%;  /* felirat feljebb */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 22px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s ease;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+#yesBtn {
+    background: #4CAF50;
+    color: white;
+    left: 40%;
+    top: 50%;
+    z-index: 2;
+}
+
+#noBtn {
+    background: #ff4d4d;
+    color: white;
+    left: 60%;
+    top: 50%;
+    z-index: 5;
+}
+
+.heart {
+    position: absolute;
+    color: red;
+    font-size: 20px;
+    animation: floatUp 5s linear infinite;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0.5); opacity:0.5; }
+    50% { opacity:1; }
+    100% { transform: translateY(-50px) scale(1); opacity:0; }
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+video {
+    max-width: 80%;
+    margin-top: 20px;
+    border-radius: 15px;
+}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop>
+    <source src="zene.mp3" type="audio/mpeg">
+</audio>
+
+<h1>Will you be my Valentine? 💖</h1>
+<button id="yesBtn">YES 🥰</button>
+<button id="noBtn">NO 😢</button>
+
+<script>
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const music = document.getElementById("bgMusic");
+
+// Zene indítása biztonságosan (egérmozgásra vagy kattintásra)
+const startMusic = () => {
+    music.play().catch(err => console.log("Zene nem indul:", err));
+};
+document.addEventListener("click", startMusic, { once: true });
+document.addEventListener("mousemove", startMusic, { once: true });
+
+// Kezdőpozíciók
+let yesX = window.innerWidth * 0.4;
+let yesY = window.innerHeight * 0.5;
+let noX = window.innerWidth * 0.6;
+let noY = window.innerHeight * 0.5;
+
+// YES fix
+yesBtn.style.left = yesX + "px";
+yesBtn.style.top  = yesY + "px";
+
+// NO kezdőpozíció
+noBtn.style.left = noX + "px";
+noBtn.style.top  = noY + "px";
+
+// NO menekülése
+document.addEventListener("mousemove", e => {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    const rect = noBtn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const dx = mouseX - centerX;
+    const dy = mouseY - centerY;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    const safeDistance = 140;
+
+    if (distance < safeDistance) {
+        const force = (safeDistance - distance) / safeDistance;
+        const moveX = -(dx / (distance || 1)) * force * 40;
+        const moveY = -(dy / (distance || 1)) * force * 40;
+
+        noX += moveX;
+        noY += moveY;
+
+        const padding = 10;
+        const maxX = window.innerWidth - rect.width - padding;
+        const maxY = window.innerHeight - rect.height - padding;
+
+        noX = Math.max(padding, Math.min(maxX, noX));
+        noY = Math.max(padding, Math.min(maxY, noY));
+
+        noBtn.style.left = noX + "px";
+        noBtn.style.top  = noY + "px";
+    }
+});
+
+// YES kattintás → romantikus üzenet + videó
+yesBtn.addEventListener("click", () => {
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+    
+    const h1 = document.querySelector("h1");
+    h1.innerHTML = "YAAAAAY 💖💖💖<br><br>" +
+                   "I can't wait to spend Valentine's Day with you ❤️";
+
+    // Videó létrehozása
+    const video = document.createElement("video");
+    video.src = "video.mp4";  // a fájl neve
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.style.display = "block";
+    video.style.margin = "20px auto 0 auto";
+    h1.insertAdjacentElement("afterend", video);
+});
+
+// Szívecskék létrehozása
+function createHeart(){
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerText = "❤️";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.fontSize = (10 + Math.random()*30) + "px";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 5000);
+}
+
+// Szívecskék folyamatos létrehozása
+setInterval(createHeart, 400);
+</script>
+</body>
+</html>
